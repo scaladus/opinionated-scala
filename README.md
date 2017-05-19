@@ -55,16 +55,62 @@ def log[A: StringSerializer](obj: A) = writeToLogFile( implicitly[StringSerializ
 ## Case classes
 case classes are „java-DTOs“. They must never contain state or interact with other components in any way.
 The only thing that is allowed are „convenience“ methods that use only data from inside of the case class (and no additional data).
+The reason here is, that Plain-Data classes should only ever be coupled with classes that they existentially depend on.
+In the example: Urls can exists in a world without anything like users, so don't couple Urls to their existence.
 
-Examples: ...
+Examples:
+case class Url(host: String, port: Int) {
+    def urlString = s"$host:$port" //Okay!
+    def isHttps = host.take(5) == "https" //"Okay"!
+    
+    //Returns http(s)://${user.name}@${user.password}:$password@$host:$uri
+    def withUserCredentials(user: User) = ??? //Bad! Avoid this. Use implicit class instead
+}
 
 ## Constructing classes with constraints
 Sometimes a class must adhere to certain constraints. These constraints should be represented as types as much as possible and reasonable.
 When enforcing the constraints at compiletime is not possible or reasonable, don't (only) make the constructor throw exceptions.
 Instead, provide a factory-function in the companion-object that tries to construct the class and does not simply return the class itself but a type that indicates if the construction was successfull or not.
 
-Example: ...
+Examples:
+- BAD:
+case class PositiveInt(value: Int) {
+    throw new IllegalArgumentException("PositiveInt must have positive value")
+}
+- Good:
+case class PositiveInt private(value: Int) {
+    throw new IllegalArgumentException("PositiveInt must have positive value")
+}
+object PositiveInt {
+    type Error = String
+    def fromDouble(value: Int): Either[Error, PositiveInt] =
+        if(value >= 0)  Right(PositiveInt(value))
+        else            Left("PositiveInt must have positive value")
+}
+- But:
+    - PositiveInt(-50) still compiles
+    - .copy(value = -50) still compiles
+    - Making PositiveInt a normal class throws away all convenience (pattern matching, hashcode/equals, copy, ...)
 
+- Crazy workaround:
+object Numbers {
+  type Error = String
+  sealed abstract case class PositiveInt private[Numbers](toInt: Int) {
+    require(toInt >= 0)
+  }
+  object PositiveInt {
+    def apply(n: Int): Either[Error, PositiveInt] =
+      if (n >= 0) Right(new PositiveInt(n){})
+      else Left("PositiveInt must have positive value")
+  }
+}
+
+import Numbers.PositiveInt
+
+PositiveInt(5) //Some(PositiveInt(5))
+PositiveInt(-13) //None
+
+- Summarized: choose you the least bad of them...
 
 # More...
 - TABU: f: Option[A] => ???

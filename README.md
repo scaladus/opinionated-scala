@@ -1,5 +1,16 @@
 # Opinionated Scala
 
+## Basics
+
+### Referential Transparency
+
+- Never use null!
+- Never use vars in case classes.
+- If you use vars anywhere, never leak them outside of a function scope (keep them referentially transparent)
+- Keep it simple (stupid)! Do you really need Akka or Spark?
+- Never use partial functions `Option.get`, `List.head`, `Map.apply`
+- Don't await Futures!
+
 ## Implicits
 ### Implicit defs
 Implicit methods should generally be avoided. Exceptions are:

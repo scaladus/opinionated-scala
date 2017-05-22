@@ -7,9 +7,11 @@
 - Never use null!
 - Never use vars in case classes.
 - If you use vars anywhere, never leak them outside of a function scope (keep them referentially transparent)
-- Keep it simple (stupid)! Do you really need Akka or Spark?
-- Never use partial functions `Option.get`, `List.head`, `Map.apply`
+- Never use partial functions 
+  * `Option.get`, `List.head`, `Map.apply`
+  * avoid map { case ... => } 
 - Don't await Futures!
+
 
 ## Implicits
 ### Implicit defs
@@ -190,13 +192,6 @@ Summarized: choose you the least bad of them...
 ## Exceptions
 Usage of Future bzw. future.failed anstatt Future[Either[…]]
 
-## Pattern matching
-- Partial functions vermeiden (z.B. bei map)
-- Don't match booleans
-- Pattern matching is unsafe if all cases aren't handled
-- You should pattern match on sealed traits only! Otherwise use a default case
-- Don't match patterns more than 4 levels deep
-
 ## General architecture
 ### Bordered system
 Grenzen des System und deren Schnittstellenformate als ADTs modellieren und eigenes Domainmodell als ADT + Konvertierung der Schnittstellen ADTs in Domainmodell
@@ -209,4 +204,11 @@ Dependency Injection nur als simple Constructor Injection. Keine DI Frameworks, 
 * Do you really need to write your own library? Guideline
   - Business-specific? OK 
   - Not specific to your business: Google it!
+  
+### Keep it simple (stupid)! 
+- Do you really need Akka or Spark?
+- Do you really need a macro for that? 
+
+### Separation of concerns 
+- Do one thing and do it well?   
   

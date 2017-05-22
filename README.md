@@ -13,7 +13,7 @@
 - Don't await Futures!
 - Be aware that standard `Seq` is mutable, consider using `immutable.List` for small structures or `immutable.Vector` for large sequences
 
-==> Scapegoat and WartRemover may help
+==> [Scapegoat](https://github.com/sksamuel/sbt-scapegoat) and [WartRemover](http://www.wartremover.org/) may help
 
 ## Implicits
 ### Implicit defs

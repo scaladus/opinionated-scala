@@ -198,3 +198,11 @@ Partial functions vermeiden (z.B. bei Map)
 Grenzen des System und deren Schnittstellenformate als ADTs modellieren und eigenes Domainmodell als ADT + Konvertierung der Schnittstellen ADTs in Domainmodell
 ### Dependency injection
 Dependency Injection nur als simple Constructor Injection. Keine DI Frameworks, insb. kein runtime DI
+
+### Library usage
+* Use Scala library over Java 
+* Use functional libraries (typelevel) 
+* Do you really need to write your own library? Guideline
+  - Business-specific? OK 
+  - Not specific to your business: Google it!
+  

@@ -8,9 +8,7 @@
 - Never use vars in case classes.
 - If you use vars anywhere, never leak them outside of a function scope (keep them referentially transparent)
 - Keep it simple (stupid)! Do you really need Akka or Spark?
-- Never use partial functions 
-  * `Option.get`, `List.head`, `Map.apply`
-  * avoid map { case ... => } 
+- Never use partial functions `Option.get`, `List.head`, `Map.apply`
 - Don't await Futures!
 
 ## Implicits
@@ -191,6 +189,13 @@ Summarized: choose you the least bad of them...
 
 ## Exceptions
 Usage of Future bzw. future.failed anstatt Future[Either[…]]
+
+## Pattern matching
+- Partial functions vermeiden (z.B. bei map)
+- Don't match booleans
+- Pattern matching is unsafe if all cases aren't handled
+- You should pattern match on sealed traits only! Otherwise use a default case
+- Don't match patterns more than 4 levels deep
 
 ## General architecture
 ### Bordered system

@@ -12,7 +12,7 @@
   * avoid map { case ... => } 
 - Don't await Futures!
 - Be aware that standard `Seq` is mutable, consider using `immutable.List` for small structures or `immutable.Vector` for large sequences
-
+==> Scapegoat and WartRemover may help
 
 ## Implicits
 ### Implicit defs

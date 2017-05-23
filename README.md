@@ -195,15 +195,15 @@ Summarized: choose you the least bad of them...
 ## Exceptions
 Usage of Future bzw. future.failed anstatt Future[Either[…]]
 
-## General architecture
-### Bordered system
+## General opinions
+### General architecture
 Grenzen des System und deren Schnittstellenformate als ADTs modellieren und eigenes Domainmodell als ADT + Konvertierung der Schnittstellen ADTs in Domainmodell
 ### Dependency injection
 Dependency Injection nur als simple Constructor Injection. Keine DI Frameworks, insb. kein runtime DI
 
 ### Library usage
 * Use Scala library over Java 
-* Use functional libraries (typelevel) 
+* Use strongly typed, functional libraries ([Typelevel](www.typelevel.org) is a good starting point)
 * Do you really need to write your own library? Guideline
   - Business-specific? OK 
   - Not specific to your business: Google it!
@@ -213,5 +213,5 @@ Dependency Injection nur als simple Constructor Injection. Keine DI Frameworks, 
 - Do you really need a macro for that? 
 
 ### Separation of concerns 
-- Do one thing and do it well?   
+- Do one thing and do it well!
   

@@ -9,8 +9,8 @@
 - If you use vars anywhere, never leak them outside of a function scope (keep them referentially transparent)
 - Avoid using a types partial functions `Option.get`, `List.head`, `Map.apply`
 - Use partial functions where applicable 
-  * ```map { case SomeType() => doSomething() }``` - Not OK 
-  * ```collect { case SomeType() => doSomething() } - OK 
+* ```map { case SomeType() => doSomething() }``` - Not OK 
+* ```collect { case SomeType() => doSomething() } - OK 
 - Don't await Futures!
 - Be aware that standard `Seq` is mutable, consider using `immutable.List` for small structures or `immutable.Vector` for large sequences
 

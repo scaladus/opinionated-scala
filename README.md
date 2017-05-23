@@ -203,7 +203,7 @@ Dependency Injection nur als simple Constructor Injection. Keine DI Frameworks, 
 
 ### Library usage
 * Use Scala library over Java 
-* Use strongly typed, functional libraries ([Typelevel](www.typelevel.org) is a good starting point)
+* Use strongly typed, functional libraries ( [Typelevel](http://www.typelevel.org) is a good starting point)
 * Do you really need to write your own library? Guideline
   - Business-specific? OK 
   - Not specific to your business: Google it!

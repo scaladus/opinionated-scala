@@ -7,6 +7,8 @@
 - Never use null!
 - Never use vars in case classes.
 - If you use vars anywhere, never leak them outside of a function scope (keep them referentially transparent)
+
+### Other recommendations
 - Avoid using a types partial functions `Option.get`, `List.head`, `Map.apply`
 - Use partial functions where applicable 
     - ```map { case SomeType() => doSomething() }```  - BAD, map expects a function
@@ -18,6 +20,8 @@
     - ```def doSomethingWithOption(input:Int):Int ; myOption.map(doSomethingWithOption)  // GOOD```
     - ```def doSomethingWithList(input:List[Int]):List[Int] // BAD```
     - ```def doSomethingWithList(input:Int):Int ; myList.map(doSomethingWithList)  // GOOD```
+- Use a single file for multiple classes only for Data classes (i.e. ADTs)
+- Public methods and vals should have a type annotation
 
 ==> [Scapegoat](https://github.com/sksamuel/sbt-scapegoat) and [WartRemover](http://www.wartremover.org/) may help
 

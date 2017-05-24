@@ -20,7 +20,7 @@
     - ```def doSomethingWithOption(input:Int):Int ; myOption.map(doSomethingWithOption)  // GOOD```
     - ```def doSomethingWithList(input:List[Int]):List[Int] // BAD```
     - ```def doSomethingWithList(input:Int):Int ; myList.map(doSomethingWithList)  // GOOD```
-- Use a single file for multiple classes only for Data classes (i.e. ADTs)
+- Use a single file with multiple classes only for your data model, i.e. ADTs
 - Public methods and vals should have a type annotation
 
 ==> [Scapegoat](https://github.com/sksamuel/sbt-scapegoat) and [WartRemover](http://www.wartremover.org/) may help

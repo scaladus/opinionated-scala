@@ -13,11 +13,11 @@
     - ```collect { case SomeType() => doSomething() }```  GOOD, collect expects a partial function
 - Don't await Futures!
 - Be aware that standard `Seq` is mutable, consider using `immutable.List` for small structures or `immutable.Vector` for large sequences
-- Do not write functions on functors, but map the function:
-    - def doSomethingWithOption(input:Option[Int]):Option[Int] // BAD
-    - def doSomethingWithOption(input:Int):Int ; myOption.map(doSomethingWithOption)  // GOOD
-    - def doSomethingWithList(input:List[Int]):List[Int] // BAD
-    - def doSomethingWithList(input:Int):Int ; myList.map(doSomethingWithList)  // GOOD
+- Try to avoid writing functions on functors, but map the function instead:
+    - ```def doSomethingWithOption(input:Option[Int]):Option[Int] // BAD```
+    - ```def doSomethingWithOption(input:Int):Int ; myOption.map(doSomethingWithOption)  // GOOD```
+    - ```def doSomethingWithList(input:List[Int]):List[Int] // BAD```
+    - ```def doSomethingWithList(input:Int):Int ; myList.map(doSomethingWithList)  // GOOD```
 
 ==> [Scapegoat](https://github.com/sksamuel/sbt-scapegoat) and [WartRemover](http://www.wartremover.org/) may help
 

@@ -202,7 +202,42 @@ PositiveInt.fromInt(42) match { //Compiles and works!
 Summarized: choose you the least bad of them...
 
 ## Exceptions
-Usage of Future bzw. future.failed anstatt Future[Either[…]]
+Exceptions have multiple purposes.
+One of them is to indicate technical errors (NullPointer) or even fatal technical errors (OutOfMemory).
+Another one is to indicate domain errors to which we count both custom defined exceptions but also built in ones like NumberFormatException.
+In Scala you should not trigger or manually throw exceptions for domain errors. There are alternatives for different cases.
+If you use a function that parses a string to a number which can throw an exception, use Try(iCanThrowExceptions()) to work with exceptions. Don't mix Try up with try/catch syntax!
+Try does not catch fatal exceptions like StackOverflow or OutOfMemory which is almost always a good thing because you can't handle them anyways except loging the error and gracefully shutdown at the toplevel of your application.
+If you a are implementing a function where you are tempted to throw an exception, don't throw an exception but instead return a (sum)type like Either which can contain the normal return value or the domain error(s).
+
+The same is valid for built-in Scala types like Future that internally use exceptions.
+Futures can be successful or failed, but they should only be failed due to technical errors (e.g. see above).
+If there are other than technical reasons that a value cannot be retrieved, use a sum(type) like Either.
+Example:
+- BAD
+def asyncGetUser(userId): Future[User] = ???
+val userResult = Await(asyncGetUser(someId), 20.seconds)
+userResult match {
+    case Success(user) => println("wuh, user found!")
+    case Failure(ResponseTimeoutException()) => println("Timed out!")
+    case Failure(UserNotFound(userId)) => println("Could not find user")
+    case Failure(UserParseError(jsonError)) => println("Could find user but not parse it")
+    case Failure(throwable) => println("Uh oh, something went wrong. Maybe the Thread was interrupted OR maybe we did forget to handle a domain error? Who knows...")
+}
+- GOOD
+def asyncGetUser(userId): Future[Either[DomainError, User]] = ???
+val userResult = Await(asyncGetUser(someId), 20.seconds)
+userResult match {
+    //Technically everything went well. We can now check for domain errors.
+    case Success(domainResult) => domainResult match {
+        case Right(user) => println("wuh, user found!")
+        case Left(ResponseTimeoutException) => println("Timed out!")
+        case Left(UserNotFound(userId)) => println("Could not find user")
+        case Left(UserParseError(jsonError)) => println("Could find user but not parse it")
+    }
+    //Only technical error
+    case Failure(throwable) => println("Uh oh, something went wrong. Maybe the Thread was interrupted but it can't be a domain error that we forgot to handle!")
+}
 
 ## General opinions
 ### General architecture

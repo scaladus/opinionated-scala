@@ -87,6 +87,30 @@ case class Circle(...) extends Drawable {
 
 Note, however, that typeclasses should be used as soon as the Drawable trait gets more complex or used rather often.
 
+### Abstract classes vs. traits
+Abstract classes are similiar to traits. Rule of thumb: always use trait unless you have specific reasons for an abstract class.
+In some situations it is convenient to have constructor parameters in ADTs for types with fixed values and in such cases traits add boilerplate.
+This is an example of an okayish usage of abstract classes:
+
+sealed abstract class ServiceError(msg: String)
+case object Timeout extends ServiceError("The Request to the Service took too long")
+case object InvalidResponse extends ServiceError("Could not parse the Service response")
+
+Using a sealed trait it would look like that:
+sealed trait ServiceError {
+  def msg: String
+}
+case object Timeout extends ServiceError {
+  override val msg: String = "The Request to the Service took too long"
+}
+case object InvalidResponse extends ServiceError {
+  override val msg: String = "Could not parse the Service response"
+}
+
+An important difference between abstract classes and traits is multiple inheritance which is possible with traits but not with abstract classes.
+This does not matter though, because we discourage multiple inheritance (and often even inheritance itself) anyways most of the time.
+
+
 ### Typeclasses
 
 ### Cakepattern
@@ -129,29 +153,6 @@ final case class Url(host: String, port: Int) {
     //Returns http(s)://${user.name}@${user.password}:$password@$host:$uri
     def withUserCredentials(user: User) = ??? //Bad! Avoid this. Use implicit class instead
 }
-
-### Abstract Classes
-Abstract classes are similiar to traits. Rule of thumb: always use trait unless you have specific reasons for an abstract class.
-In some situations it is convenient to have constructor parameters in ADTs for types with fixed values and in such cases traits add boilerplate.
-This is an example of an okayish usage of abstract classes:
-
-sealed abstract class ServiceError(msg: String)
-case object Timeout extends ServiceError("The Request to the Service took too long")
-case object InvalidResponse extends ServiceError("Could not parse the Service response")
-
-Using a sealed trait it would look like that:
-sealed trait ServiceError {
-  def msg: String
-}
-case object Timeout extends ServiceError {
-  override val msg: String = "The Request to the Service took too long"
-}
-case object InvalidResponse extends ServiceError {
-  override val msg: String = "Could not parse the Service response"
-}
-
-An important difference between abstract classes and traits is multiple inheritance which is possible with traits but not with abstract classes.
-This does not matter though, because we discourage multiple inheritance (and often even inheritance itself) anyways most of the time.
 
 ### Constructing classes with constraints
 Sometimes a class must adhere to certain constraints. These constraints should be represented as types as much as possible and reasonable.

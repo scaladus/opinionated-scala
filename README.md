@@ -63,7 +63,7 @@ sealed trait Shape
 We now have safe pattern matching (compiler warns us if we forget a case) and an easy to understand representation of the different kind of things that are handled by our application.
 Don't forget to add the sealed keyword! This is mandatory. Never leave that out. Also note that the trait should not have methods defined (also see [Inheritance](#Inheritance of traits)).
 
-Advanced: What if you don't have control over some or all of the classes (Circle, Rectangle, Cone, ...) but still want to have type-safe pattern matching?
+Advanced: What if you don't have control over some or all of the classes (Circle, Rectangle, Cone, ...) but still want to have type-safe transform functionality similiar to pattern matching?
 Answer: Use shapeless Coproduct: type Shape = Circle :+: Rectangle :+: Some3rdPartyShape :+: Another3rdPartyShape :+: CNil
 
 ### Inheritance of traits
@@ -119,7 +119,7 @@ def log[A: StringSerializer](obj: A) = writeToLogFile( implicitly[StringSerializ
 case classes are „java-DTOs“. They must never contain state or interact with other components in any way.
 The only thing that is allowed are „convenience“ methods that use only data from inside of the case class (and no additional data).
 The reason here is, that Plain-Data classes should only ever be coupled with classes that they existentially depend on.
-In the example: Urls can exists in a world without anything like users, so don't couple Urls to their existence.
+In the example: Urls can exists in a world without anything like users, so don't couple Urls to the fact that there exists a thing like a user.
 
 Examples:
 final case class Url(host: String, port: Int) {
@@ -151,7 +151,7 @@ case object InvalidResponse extends ServiceError {
 }
 
 An important difference between abstract classes and traits is multiple inheritance which is possible with traits but not with abstract classes.
-This does not matter though, because we consider multiple inheritance (and even inheritance itself) as useless to extremely dangerous anyways most of the time.
+This does not matter though, because we discourage multiple inheritance (and often even inheritance itself) anyways most of the time.
 
 ### Constructing classes with constraints
 Sometimes a class must adhere to certain constraints. These constraints should be represented as types as much as possible and reasonable.
@@ -200,6 +200,63 @@ PositiveInt.fromInt(42) match { //Compiles and works!
 }
 
 Summarized: choose you the least bad of them...
+
+## Pattern matching
+Pattern matching is a powerful language feature and makes a lot of things easier. Because of its power it also comes with some dangers.
+For that reason, pattern matching should only used when needed and there are some basic rules to be followed to make its usage safe.
+
+### Simple comparisons
+Pattern matching can be used to check conditions and to extract values. If only simple conditions are checked, use if/else instead of pattern matching.
+Example:
+birthyear match {
+	case 1989 => println("this is the best year")
+	case 2017 => println("You are to young to read this anways")
+}
+Instead use
+if(birthyear == 1989) println("this is the best year")
+else if(birthyear == 2017) println("You are to young to read this anways")
+
+The reason is that pattern matching should ideally indicate that all cases are handled which is not the case here. Thus, if you don't need the power of pattern matching, don't use it.
+It's not per se better than using if/else. One advantage of if/else is, that one can immediatly see that there is no else clause, thus some cases will most likely not be caught.
+ 
+If you need the power of pattern matching e.g. because you wan't to extract values from case classes and match on structure, take care to make pattern matching safe.
+
+### Case classes of sealed traits
+Pattern matching is safe if you match on case classes of sealed traits without using guards. This rule recursively applies for matching things within case classes.
+For the built in primives like String, Boolean, Int, ... it is also safe to match on their values even though they are not case classes because the compiler will warn you regardless.
+If you match on non-case classes or use guards, you must always provide a default case that applies when all other matches failed.
+- Examples
+
+This one is okay because the compiler will warn (or fail to compile with compiler flag)
+"hello" match { case "really hello" => ??? }
+
+sealed trait Fruit
+case class Apple(weight: Int) extends Fruit
+case class Banana(length: Float) extends Fruit
+
+This one is also good. Missing classes will create compiler warnings/errors
+someFruit match {
+	case Apple(weight) => ???
+	case Banana(length) => ???
+}
+
+Even the next one is fine, because messing up with their inner values will throw warnings/errors because they are primitives
+someFruit match {
+	case Apple(20) => ???
+	case Banana(length) => ???
+}
+Will result in compiler saying: Warning:(39, 13) match may not be exhaustive. It would fail on the following input: Apple((x: Int forSome x not in 20))
+
+Now a guard is used. The guard checks if the weight is over 20. This will NOT trigger compiler warnings/errors and thus can lead to unsafe pattern matchings, resulting in MatchErrors
+someFruit match {
+	case Apple(weight) if weight > 20 => ???
+	case Banana(length) => ???
+}
+
+TODO: Add examples for matching in non-case class, non sealed traits and using the default case
+
+
+
 
 ## Exceptions
 Exceptions have multiple purposes.

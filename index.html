@@ -63,7 +63,46 @@
 					<h1>General philosophy</h1>
 				</section>
 				<section>
-					<h1>Case classes</h1>
+					<section>
+						<h1>Case classes</h1>
+						<ul>
+							<li>"Java-DTOs" - simple data bags</li>
+							<li>Must never contain state</li>
+							<li>Should never depend on other types unless domain rules tell so</li>
+							<li>Anemic Domain Model, not Rich Domain Model (= classical OOP)</li>
+							<li>Should never throw Exceptions, not even on instantiation</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Containing state</h2>
+						<pre><code data-trim data-noescape class="scala">
+						case class User(
+							name: UserName,
+							val lastLogins: mutable.Seq[DateTime],
+							var failedLogins: Int
+						)
+						</code></pre>
+					</section>
+					<section>
+						<h2>Depending on other entities</h2>
+						Not so good:
+						<pre><code data-trim data-noescape class="scala">
+						case class Pet(name: String) //defined somewhere else
+						case class User(name: String) {
+						   def hasSameNameAs(pet: Pet) = this.name == pet.name
+						}
+						</code></pre>
+						Better:
+						<pre><code data-trim data-noescape class="scala">
+						case class Pet(name: String, typ: PetType) //somewhere else
+						case class User(name: String, var failedLogins: Int)
+						object User {
+						   implicit class UserOps(user: User) {
+						      def hasSameNameAs(pet: Pet) = user.name == pet.name
+						   }
+						}
+						</code></pre>
+					</section>
 				</section>
 				<section>
 					<h1>Traits</h1>

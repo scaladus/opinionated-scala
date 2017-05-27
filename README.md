@@ -5,21 +5,20 @@
 ### Referential Transparency
 
 - Never use null!
-- Never use vars in case classes.
 - If you use vars anywhere, never leak them outside of a function scope (keep them referentially transparent)
 
 ### Other recommendations
 - Avoid using a types partial functions `Option.get`, `List.head`, `Map.apply`
-- Use partial functions where applicable 
-    - ```map { case SomeType() => doSomething() }```  - BAD, map expects a function
-    - ```collect { case SomeType() => doSomething() }```  GOOD, collect expects a partial function
-- Don't await Futures!
+- Be carefull with the usage of partial functions. The general pattern matching rules apply. 
+    - ```list map { case SomeCaseClass() => ??? }```  - BAD, except if list contains elements of a sealed trait of case classes on which we match. 
+    - ```list collect { case Anything() => ??? }```  - Okay, collect expects a partial function on purpose. There are usually better ways though.
+- Don't await Futures unless you want to block the thread on purpose! Usually you only want to do this on the highest level (e.g. main-method) of your application.
 - Be aware that standard `Seq` is mutable, consider using `immutable.List` for small structures or `immutable.Vector` for large sequences
 - Try to avoid writing functions on functors, but map the function instead:
-    - ```def doSomethingWithOption(input:Option[Int]):Option[Int] // BAD```
-    - ```def doSomethingWithOption(input:Int):Int ; myOption.map(doSomethingWithOption)  // GOOD```
-    - ```def doSomethingWithList(input:List[Int]):List[Int] // BAD```
-    - ```def doSomethingWithList(input:Int):Int ; myList.map(doSomethingWithList)  // GOOD```
+    - ```def transformOption(input:Option[Int]):Option[Int] // BAD```
+    - ```def transform(input:Int):Int ; myOption.map(transform)  // GOOD```
+    - ```def transformEachSingleElement(input:List[Int]):List[Int] // BAD```
+    - ```def transform(input:Int):Int ; myList.map(transform)  // GOOD```
 - Use a single file with multiple classes only for your data model, i.e. ADTs
 - Public methods and vals should have a type annotation
 
@@ -116,7 +115,8 @@ def log[A: StringSerializer](obj: A) = writeToLogFile( implicitly[StringSerializ
 
 ## Classes
 ### Case classes
-case classes are „java-DTOs“. They must never contain state or interact with other components in any way.
+case classes are „java-DTOs“. They must never contain state (vars) or interact with other components in any way.
+Also, even if technically possible, they must not be extended. It is boilerplaty but recommended to finalize every case class.
 The only thing that is allowed are „convenience“ methods that use only data from inside of the case class (and no additional data).
 The reason here is, that Plain-Data classes should only ever be coupled with classes that they existentially depend on.
 In the example: Urls can exists in a world without anything like users, so don't couple Urls to the fact that there exists a thing like a user.

@@ -230,33 +230,69 @@ If you match on non-case classes or use guards, you must always provide a defaul
 This one is okay because the compiler will warn (or fail to compile with compiler flag)
 "hello" match { case "really hello" => ??? }
 
+case class Seed()
+
 sealed trait Fruit
-case class Apple(weight: Int) extends Fruit
+case class Grape(seedWeight: Option[Double]) extends Fruit
 case class Banana(length: Float) extends Fruit
+case class Apple(seeds: List[Seed]) extends Fruit
 
-This one is also good. Missing classes will create compiler warnings/errors
+This one is also good. Missing classes (like missing Apple in this example) will create compiler warnings/errors
 someFruit match {
-	case Apple(weight) => ???
+	case Grape(_) => ???
 	case Banana(length) => ???
 }
 
-Even the next one is fine, because messing up with their inner values will throw warnings/errors because they are primitives
+Even the next one is fine, because messing up with their inner values will throw warnings/errors as long as they are primitives
 someFruit match {
-	case Apple(20) => ???
-	case Banana(length) => ???
+	case Grape(_) => ???
+	case Banana(20.05) => ???
+	case Apple(_) => ???
 }
-Will result in compiler saying: Warning:(39, 13) match may not be exhaustive. It would fail on the following input: Apple((x: Int forSome x not in 20))
+Will result in compiler saying: Warning: match may not be exhaustive. It would fail on the following input: Banana((x: Float forSome x not in 20.05))
 
-Now a guard is used. The guard checks if the weight is over 20. This will NOT trigger compiler warnings/errors and thus can lead to unsafe pattern matchings, resulting in MatchErrors
+Now a guard is used. The guard checks if the length is over 20. This will NOT trigger compiler warnings/errors and thus can lead to unsafe pattern matchings, resulting in MatchErrors
 someFruit match {
-	case Apple(weight) if weight > 20 => ???
-	case Banana(length) => ???
+	case Grape(_) => ???
+	case Banana(length) of length > 20 => ???
+	case Apple(_) => ???
+}
+Therefore, don't do this! Either check the conition behind the case expression (which forces you to deal with both cases unless you use impure side effects) or add a default case at the end.
+
+This one is fine:
+someFruit match {
+	case Banana(length) of length > 20 => ???
+	case _ => ???
 }
 
-TODO: Add examples for matching in non-case class, non sealed traits and using the default case
+The following matches if the Fruit is a Grape and then if it has a seed to extract the weight from. This get warnings/errors because we don't match for Grapes without a seed.
+Adding a ```case Grape(None) => ???``` would make it compile again.
+someFruit match {
+	case Grape(Some(weight)) => ???
+	case Banana(_) => ???
+	case Apple(_) => ???
+}
 
+However, consider the following example:
+someFruit match {
+	case Grape(_) => ???
+	case Banana(_) => ???
+	case Apple(List(Seed(), Seed(), Seed())) => ???
+}
+We only match for Apples with 3 seeds and obviously miss some cases which can result in a MatchError.
+However, we might expect the compiler to tell us that we forgot some cases, but it doesn't.
+The reason is that ```List``` is not a case class!
+In Scala, Lists are constructed recursively using the ```::``` case class. Thus, if we use ```::``` to match on the seeds, the compiler will help us out!
+someFruit match {
+	case Grape(_) => ???
+	case Banana(_) => ???
+	case Apple(Seed() :: Seed() :: Seed() :: Nil) => ???
+}
+This will result in: Warning: match may not be exhaustive. It would fail on the following inputs: Apple(List(_)), Apple(List(_, _)), Apple(List(_, _, _, _)), Apple(Nil)
 
-
+The rule of thumb is therefore: Try to only match on sealed traits of case classes on every level of your pattern matching.
+Try to avoid pattern matching on non-sealed traits, non-case classes or if you use guards.
+But if you do, always provide a default case. 
 
 ## Exceptions
 Exceptions have multiple purposes.

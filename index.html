@@ -303,7 +303,7 @@
 						</ul>
 					</section>
 					<section>
-						<h1>Pattern matching overused</h1>
+						<h2>Pattern matching - overused</h2>
 						<pre><code data-trim data-noescape class="scala">
 						birthyear match {
 							case 1989 => println("this is the best year")
@@ -317,6 +317,105 @@
 						</code></pre>
 						Here one can immediately see that this might be unsafe because we have not covered all cases.
 					</section>
+                    <section>
+                        <h2>Safe pattern matching</h2>
+                        Using the <i>-Xfatal-warnings</i> compiler-flag,<br>
+                        it is safe to pattern match on
+                        <ul>
+                            <li>Primitives (Int, Boolean, String, ...)</li>
+                            <li>Sealed traits of (final) case classes</li>
+                        </ul>
+                        Everything else makes pattern matching potentially unsafe<br>
+                        Including guard-conditions<br>
+                        But: pattern matching with default cases are always safe
+                    </section>
+                    <section>
+                        <h2>pattern matching examples - safe cases</h2>
+                        <pre><code data-trim data-noescape class="scala">
+                        "hello" match { case "really hello?" => ??? }
+						</code></pre>
+                        <pre><code data-trim data-noescape class="scala">
+                        sealed trait Fruit
+                        case class Grape(seedWeight: Option[Double]) extends Fruit
+                        case class Banana(length: Float) extends Fruit
+                        case class Apple(seeds: List[Seed]) extends Fruit
+
+                        someFruit match {
+                            case Grape(_) => ???
+                            case Banana(length) => ???
+                        }
+						</code></pre>
+
+                        <pre><code data-trim data-noescape class="scala">
+                        someFruit match {
+                            case Grape(_) => ???
+                            case Banana(20.05) => ???
+                            case Apple(_) => ???
+                        }
+                        //Compiler error:
+                        //It would fail on the following input:
+                        //Banana((x: Float forSome x not in 20.05))
+						</code></pre>
+                    </section>
+                    <section>
+                        <h2>pattern matching examples - guards</h2>
+                        Unsafe when using guards:
+                        <pre><code data-trim data-noescape class="scala">
+                        someFruit match {
+                            case Grape(_) => ???
+                            case Banana(length) if length > 20 => ???
+                            case Apple(_) => ???
+                        }
+						</code></pre>
+                        Make it safe with default case:
+                        <pre><code data-trim data-noescape class="scala">
+                        someFruit match {
+                            case Grape(_) => ???
+                            case Banana(length) if length > 20 => ???
+                            case Apple(_) => ???
+                            case _ => ???
+                        }
+						</code></pre>
+                    </section>
+                    <section>
+                        <h2>pattern matching examples - nested</h2>
+                        Safe nested pattern matching:
+                        <pre><code data-trim data-noescape class="scala">
+                        //Remember: case class Grape(seedWeight: Option[Double]) extends Fruit
+                        someFruit match {
+                            case Grape(Some(weight)) => ???
+                            case Banana(_) => ???
+                            case Apple(_) => ???
+                        }
+						</code></pre>
+                        You can pattern match as deep as you want.<br>
+                        As long as every nesting-level applies to the presented rules!
+                    </section>
+                    <section>
+                        <h2>pattern matching examples - nested</h2>
+                        Is this safe?
+                        <pre><code data-trim data-noescape class="scala">
+                        //Remember: case class Apple(seeds: List[Seed]) extends Fruit
+                        someFruit match {
+                            case Grape(_) => ???
+                            case Banana(_) => ???
+                            case Apple(List(Seed(), Seed(), Seed())) => ???
+                        }
+						</code></pre>
+                        It is not safe and can fail with a MatchError at runtime!<br>
+                        Let's make the compiler warn us:
+                        <pre><code data-trim data-noescape class="scala">
+                        someFruit match {
+                            case Grape(_) => ???
+                            case Banana(_) => ???
+                            case Apple(Seed() :: Seed() :: Seed() :: Nil) => ???
+                        }
+                        //Compiler:
+                        //match may not be exhaustive.
+                        //It would fail on the following inputs:
+                        //Apple(List(_)), Apple(List(_, _)), Apple(List(_, _, _, _)), Apple(Nil)
+                        </code></pre>
+                    </section>
 				</section>
                 <section>
                     <h1>Warts</h1>

@@ -215,79 +215,7 @@
 					</section>
 				</section>
 				<section>
-					<section>
-						<h1>Implicits</h1>
-						What happens when we try to compile and execute this code:
-						<iframe height="300" frameborder="0" style="width: 100%; overflow: hidden;" src="https://embed.scalafiddle.io/embed?sfid=MGtwAKo/0&theme=dark&layout=v50"></iframe>
-						<!--
-						<pre><code data-trim data-noescape class="scala">
-						implicit val petNames = List("Cat", "Dog", "Dolphin")
-						def logPetName(petName: String) = println(x)
-						val galacticConstant: Int = 42
-						logPetName(galacticConstant)
-						</code></pre>
-						-->
-						<ul>
-							<li>Avoid implicits, except for wellknown patterns</li>
-							<li>The more specific the implicit type the better</li>
-						</ul>
-					</section>
-					<section>
-						<h2>Implicit methods</h2>
-						Avoid implicit methods except for
-						<ul>
-							<li>Extending functionality on existing types (implicit class pattern)</li>
-							<li>Methods with only implicit parameters (typelevel programming)</li>
-						</ul>
-					</section>
-					<section>
-						<h2>Implicit methods examples</h2>
-						Bad:
-						<pre><code data-trim data-noescape class="scala">
-						implicit def(s: String): List[Char] = ???
-						</code></pre>
-						Good:
-						<pre><code data-trim data-noescape class="scala">
-						class StringOps(s: String) { … }
-						implicit def (s: String): StringOps = new StringOps(s)
-						</code></pre>
-						...or even better:
-						<pre><code data-trim data-noescape class="scala">
-						implicit class StringOps(s: String) { … }
-						</code></pre>
-					</section>
-					<section>
-						<h2>Implicit parameters</h2>
-						<ul>
-							<li>There is only one sane usage: typeclasses</li>
-							<li>That's it. Nothing more. Period. (Or is there more?)</li>
-							<li>Don't use it to pass "configurations" or "contexts" down the call chain!</li>
-						</ul>
-						It is common practice to pass an implicit ExecutionContext, even in the standard library.<br>
-						This is a code smell and can most of the times be solved better.
-					</section>
-					<section>
-						<h2>Implicit parameters examples</h2>
-						Bad:
-						<pre><code data-trim data-noescape class="scala">
-						def greetUser(name: UserName)(implicit lang: Language) = ???
-						</code></pre>
-						Worse:
-						<pre><code data-trim data-noescape class="scala">
-						def allUsers(repository: UserRepository)(implicit ec: ExecutionContext) = ???
-						</code></pre>
-						Doomed!:
-						<pre><code data-trim data-noescape class="scala">
-						def getAllUsers(repository: UserRepository)(implicit ec: ExecutionContext, timeoutLimit: Long) = ???
-						</code></pre>
-						Good:
-						<pre><code data-trim data-noescape class="scala">
-						def serialize[A](obj: A)(implicit si: SerializeInstructions[A]) = ???
-						</code></pre>
-						Better:
-						<pre><code data-trim data-noescape class="scala">
-						def serialize[A: SerializeInstructions](obj: A) = ???
-						</code></pre>
+					<h1>Implicits</h1>
 				</section>
 				<section>
 					<h1>About Exceptions</h1>
@@ -297,6 +225,23 @@
 				</section>
 				<section>
 					<h1>Warts</h1>
+					<section>
+						<h2>Don't use partial functions!</h2>
+						<ul>
+							<li>Never use `Option.get` use `getOrElse`, `map` or literally anything else.</li>
+							<li>Do NOT use `List.apply`, use `lift` instead. </li>
+							<li>Same goes for `head`, there use `headOption`</li>
+							<li>If you do want to use a partial function, use functions that expect one, e.g. `List.collect`</li>
+						</ul>
+					</section>
+					<section>
+						<h2>General</h2>
+						<ul>
+							<li>Avoid using `Seq`, as it default to the mutable version</li>
+							<li>Don't await Futures unless you want to block the thread on purpose!</li>
+							<li>You might want to try Scapegoat or WartRemover to help</li>
+						</ul>
+					</section>
 				</section>
 				<section>
 					<h1>Overall architecture</h1>

@@ -61,6 +61,9 @@
 				</section>
 				<section>
 					<h1>General philosophy</h1>
+					<section>
+						Idiomatic but not dogmatic
+					</section>
 				</section>
 				<section>
 					<section>
@@ -315,9 +318,26 @@
 						Here one can immediately see that this might be unsafe because we have not covered all cases.
 					</section>
 				</section>
-				<section>
-					<h1>Warts</h1>
-				</section>
+                <section>
+                    <h1>Warts</h1>
+                    <section>
+                        <h2>Don't use partial functions!</h2>
+                        <ul>
+                            <li>Never use `Option.get` use `getOrElse`, `map` or literally anything else.</li>
+                            <li>Do NOT use `List.apply`, use `lift` instead. </li>
+                            <li>Same goes for `head`, there use `headOption`</li>
+                            <li>If you do want to use a partial function, use functions that expect one, e.g. `List.collect`</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>General</h2>
+                        <ul>
+                            <li>Avoid using `Seq`, as it default to the mutable version</li>
+                            <li>Don't await Futures unless you want to block the thread on purpose!</li>
+                            <li>You might want to try Scapegoat or WartRemover to help</li>
+                        </ul>
+                    </section>
+                </section>
 				<section>
 					<h1>Overall architecture</h1>
 				</section>

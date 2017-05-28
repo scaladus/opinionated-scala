@@ -105,7 +105,114 @@
 					</section>
 				</section>
 				<section>
+					<section>
 					<h1>Traits</h1>
+					Traits in different flavours
+					<ul>
+						<li>Sealed traits for sumtypes</li>
+						<li>"interface" inheritance</li>
+						<li>Encoding typeclasses</li>
+						<li>Traits without implementation</li>
+						<li>Dependency injection, cake pattern</li>
+					</ul>
+					</section>
+					<section>
+						<h2>Sealed traits for sumtypes</h2>
+						<pre><code data-trim data-noescape class="scala">
+						sealed trait Shape
+						final case class  Circle(radius: Double) extends Shape
+						final case class  Rectangle(width: Double, height: Double) extends Shape
+						final case object Rheinturm extends Shape
+						final case object KoelnerDom extends Shape
+						</code></pre>
+						Gives us...
+						<ul>
+							<li>Pattern matching safety (exhaustive warnings)</li>
+							<li>Easy to comprehend description of business domain</li>
+						</ul>
+						Important:
+						<ul>
+							<li>Don't forget the essential sealed keyword</li>
+							<li>Avoid putting methods into your trait or its extending types</li>
+						</ul>
+					</section>
+					<section>
+						<h2>"interface" inheritance</h2>
+						<pre><code data-trim data-noescape class="scala">
+						sealed trait LogMessage {
+							def msg: String
+						}
+						case class InfoMessage(msg: String) extends LogMessage
+						case class WarnMessage(msg: String) extends LogMessage
+						case class ErrorMessage(msg: String) extends LogMessage
+						</code></pre>
+						<pre><code data-trim data-noescape class="scala">
+						trait Drawable {
+							def asImage: JPG
+						}
+						case class Circle(...) extends Drawable {
+							override def asImage: JPG = ???
+						}
+						</code></pre>
+						This is 'okayish' if application code and not library code...
+						<ul>
+							<li>Less boilerplate than typeclass pattern</li>
+							<li>Better (compiletime) performance than typeclass pattern</li>
+						</ul>
+						For libraries, use typeclass pattern only when accepting input from client!
+					</section>
+					<section>
+						<h2>abstract classes</h2>
+						<ul>
+							<li>You can only extend one abstract class but multiple traits</li>
+							<li>Can have constructor parameters</li>
+							<li>Generally use traits unless you need abstract classes</li>
+						</ul>
+						This is an okayish usage of abstract classes to avoid boilerplate
+						<pre><code data-trim data-noescape class="scala">
+						sealed abstract class ServiceError(msg: String)
+						case object Timeout extends ServiceError("The Request to the Service took too long")
+						case object InvalidResponse extends ServiceError("Could not parse the Service response")
+						</code></pre>
+					</section>
+					<section>
+						<h2>encode typeclasses</h2>
+						Typeclasses are a powerfull concept.
+						They are a little bit more boilerplate than regular inheritance unless you use specific tooling.
+						Always use typeclasses when writing libraries or in more complex cases.
+
+						Bad logging library:
+						<pre><code data-trim data-noescape class="scala">
+						trait StringSerializeable {
+							def serialized: String
+						}
+						def log[A &gt;: StringSerializeable](obj: A) =
+							writeToLogFile( obj.serialized )
+						</code></pre>
+
+						Good logging library:
+						<pre><code data-trim data-noescape class="scala">
+						trait StringSerializer {
+							def serialize[A](obj: A): String
+						}
+						def log[A: StringSerializer](obj: A) =+
+							writeToLogFile( implicitly[StringSerializer].serialize(obj) )
+						</code></pre>
+					</section>
+					<section>
+						<h2>Traits without implementation</h2>
+						<ul>
+							<li>They have no implementing classes and can't be intantiated</li>
+							<li>Used for typelevel programming</li>
+							<li>Used for phantom types</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Dependency injection / cake pattern</h2>
+						Just no. Don't do that. Period.<br>
+						Use Constructor injection instead, or Macwire if you are really lazy.<br>
+						%insert image of bakery of doom here%
+					</section>
 				</section>
 				<section>
 					<h1>Implicits</h1>

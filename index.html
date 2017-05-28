@@ -51,8 +51,8 @@
 								<li>Case classes</li>
 								<li>Traits</li>
 								<li>Implicits</li>
-								<li>About Exceptions</li>
 								<li>Pattern matching</li>
+								<li>About Exceptions</li>
 							</ul>
 						</li>
 						<li>Warts</li>
@@ -288,12 +288,32 @@
 						<pre><code data-trim data-noescape class="scala">
 						def serialize[A: SerializeInstructions](obj: A) = ???
 						</code></pre>
+					</section>
 				</section>
 				<section>
-					<h1>About Exceptions</h1>
-				</section>
-				<section>
-					<h1>Pattern matching</h1>
+					<section>
+						<h1>Pattern matching</h1>
+						<ul>
+							<li>Powerful but unsafe in many cases</li>
+							<li>Sometimes overused - if/else is not generally bad</li>
+							<li>Don't write unsafe pattern matches, ever. You don't have to</li>
+						</ul>
+					</section>
+					<section>
+						<h1>Pattern matching overused</h1>
+						<pre><code data-trim data-noescape class="scala">
+						birthyear match {
+							case 1989 => println("this is the best year")
+							case 2017 => println("You are to young to read this anways")
+						}
+						</code></pre>
+						Do we really need pattern matching here? Let's see...
+						<pre><code data-trim data-noescape class="scala">
+						if(birthyear == 1989) println("this is the best year")
+						else if(birthyear == 2017) println("You are to young to read this anways")
+						</code></pre>
+						Here one can immediately see that this might be unsafe because we have not covered all cases.
+					</section>
 				</section>
 				<section>
 					<h1>Warts</h1>

@@ -128,16 +128,18 @@
 						final case object Rheinturm                          extends Shape
 						final case object KoelnerDom                         extends Shape
 						</code></pre>
-						Gives us...
-						<ul>
+						<p class="fragment">Gives us...
+						<ul class="fragment">
 							<li>Pattern matching safety (exhaustive warnings)</li>
 							<li>Easy to comprehend description of business domain</li>
 						</ul>
-						Important:<br>
-						<ul>
+						</p>
+						<p class="fragment">Important:
+						<ul class="fragment">
 							<li>The sealed keyword is essential</li>
 							<li>Avoid functionality</li>
 						</ul>
+						</p>
 					</section>
 					<section>
 						<h2>"interface" inheritance</h2>
@@ -149,7 +151,7 @@
 						case class WarnMessage(msg: String) extends LogMessage
 						case class ErrorMessage(msg: String) extends LogMessage
 						</code></pre>
-						<pre><code data-trim data-noescape class="scala">
+						<pre class="fragment"><code data-trim data-noescape class="scala">
 						trait Drawable {
 							def asImage: JPG
 						}
@@ -157,7 +159,7 @@
 							override def asImage: JPG = ???
 						}
 						</code></pre>
-						'Okayish' when writing application code but not library code...
+						<p class="fragment">'Okayish' when writing application code but not library code...</p>
 					</section>
 					<section>
 						<h2>encode typeclasses</h2>
@@ -178,29 +180,31 @@
 						   writeToLogFile( obj.serialized )
 						</code></pre>
 
+						<p class="fragment">
 						Good logging library:
-						<pre><code data-trim data-noescape class="scala">
+						<pre class="fragment"><code data-trim data-noescape class="scala">
 						trait StringSerializer {
 						   def serialize[A](obj: A): String
 						}
 						def log[A: StringSerializer](obj: A) =+
 						   writeToLogFile( implicitly[StringSerializer].serialize(obj) )
 						</code></pre>
+						</p>
 					</section>
 					<section>
 						<h2>zero implementation traits</h2>
 						<ul>
 							<li>They have nothing extending them</li>
 							<li>They are never intantiated</li>
-							<li>Used for typelevel programming</li>
-							<li>Used for phantom types</li>
+							<li class="fragment">Used for typelevel programming</li>
+							<li class="fragment">Used for phantom types</li>
 						</ul>
 					</section>
 					<section>
 						<h2>DI / cake pattern</h2>
 						Just no. Don't do that. Period.<br>
 						Use Constructor injection instead, or Macwire if you are really lazy.<br>
-						%insert image of bakery of doom here%
+						{insert bakery-of-doom image here}
 					</section>
 					<section>
 						<h2>abstract classes</h2>
@@ -209,13 +213,14 @@
 							<li>They can have constructor parameters</li>
 							<li>Generally use traits unless you need abstract classes</li>
 						</ul>
-						<br><br>
+						<p class="fragment">
 						This is an okayish usage to avoid boilerplate:
-						<pre><code data-trim data-noescape class="scala">
+						<pre class="fragment"><code data-trim data-noescape class="scala">
 						sealed abstract class ServiceError(msg: String)
 						case object Timeout extends ServiceError("Request took too long")
 						case object InvalidResponse extends ServiceError("Parse-error")
 						</code></pre>
+						<p/>
 					</section>
 				</section>
 				<section>
@@ -231,7 +236,7 @@
 						logPetName(galacticConstant)
 						</code></pre>
 						-->
-						<ul>
+						<ul class="fragment">
 							<li>Avoid implicits, except for wellknown patterns</li>
 							<li>The more specific the implicit type the better</li>
 						</ul>
@@ -246,10 +251,13 @@
 					</section>
 					<section>
 						<h2>Implicit methods examples</h2>
+						<div class="fragment">
 						Bad:
 						<pre><code data-trim data-noescape class="scala">
 						implicit def charList(s: String): List[Char] = ???
 						</code></pre>
+						</div>
+						<div class="fragment">
 						Good:
 						<pre><code data-trim data-noescape class="scala">
 						class StringOps(s: String) {
@@ -257,12 +265,15 @@
 						}
 						implicit def (s: String): StringOps = new StringOps(s)
 						</code></pre>
+						</div>
+						<div class="fragment">
 						...or even better:
 						<pre><code data-trim data-noescape class="scala">
 						implicit class StringOps(s: String) {
 							def toCharList: List[Char] = ???
 						}
 						</code></pre>
+						</div>
 					</section>
 					<section>
 						<h2>Implicit parameters</h2>
@@ -272,26 +283,33 @@
 							<li>Don't use it to pass "configurations" or "contexts" down the call chain!</li>
 						</ul>
 						<br>
-						<br>
+						<p class="fragment">
 						It's common practice to pass an implicit ExecutionContext.<br>
-						This is a code smell and can mostly be solved better.<br>
+						This is a code smell and can mostly be solved better.
+						</p>
 					</section>
 					<section>
 						<h2>Implicit parameters</h2>
+						<div class="fragment">
 						Bad:
 						<pre><code data-trim data-noescape class="scala">
 						def greetUser(name: UserName)(implicit lang: Language) = ???
 						</code></pre>
+						</div>
+						<div class="fragment">
 						Worse:
 						<pre><code data-trim data-noescape class="scala">
 						def allUsers(repository: UserRepository)
 						   (implicit ec: ExecutionContext) = ???
 						</code></pre>
+						</div>
+						<div class="fragment">
 						Doomed!
 						<pre><code data-trim data-noescape class="scala">
 						def getAllUsers(repository: UserRepository)
 						   (implicit ec: ExecutionContext, timeoutLimit: Long) = ???
 						</code></pre>
+						</div>
 					</section>
 					<section>
 						<h2>Implicit parameters<br> the good parts</h2>
@@ -300,10 +318,12 @@
 						def serialize[A](obj: A)
 						   (implicit si: SerializeInstructions[A]) = ???
 						</code></pre>
+						<div class="fragment">
 						Better:
 						<pre><code data-trim data-noescape class="scala">
 						def serialize[A: SerializeInstructions](obj: A) = ???
 						</code></pre>
+						</div>
 					</section>
 				</section>
 				<section>
@@ -323,6 +343,7 @@
 							case 2020 => println("Are you from the Future[_]?!")
 						}
 						</code></pre>
+						<div class="fragment">
 						Do we really need pattern matching here? Let's see...
 						<pre><code data-trim data-noescape class="scala">
 						if(birthyear == 1989)
@@ -331,13 +352,14 @@
 							println("Are you from the Future[_]?!")
 						</code></pre>
 						One can immediately see that this might be unsafe because we have not covered all cases.
+						</div>
 					</section>
                     <section>
                         <h2>Safe pattern matching</h2>
                         Using the <i>-Xfatal-warnings</i> compiler-flag,<br>
                         it is always safe to pattern match on...
                         <ul>
-                            <li>Primitives (Int, Boolean, String, ...) in case classes</li>
+                            <li>Primitives (Int, Boolean, String, ...) within case classes</li>
                             <li>Sealed traits of (final) case classes</li>
                         </ul>
 						<p>
@@ -348,11 +370,11 @@
                     </section>
                     <section>
                         <h2>pattern matching examples<br>safe cases</h2>
-                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
+                        <pre style="font-size: 0.4em;" class="fragment"><code data-trim data-noescape class="scala">
 						true match { case true => ??? }
-						//Error: It would fail on the following input: true
+						//Error: It would fail on the following input: false
 						</code></pre>
-                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
+                        <pre style="font-size: 0.4em;" class="fragment"><code data-trim data-noescape class="scala">
 						sealed trait Fruit
 						case class Grape (seedWeight: Option[Double]) extends Fruit
 						case class Banana(length: Float)              extends Fruit
@@ -365,7 +387,7 @@
 						//Error: It would fail on the following input: Apple(_)
 						</code></pre>
 
-                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
+                        <pre style="font-size: 0.4em;" class="fragment"><code data-trim data-noescape class="scala">
                         someFruit match {
                             case Grape (_) => ???
                             case Banana(20.05) => ???
@@ -385,6 +407,7 @@
                             case Apple (_) => ???
                         }
 						</code></pre>
+						<div class="fragment">
                         Make it safe with default case:
                         <pre><code data-trim data-noescape class="scala">
                         someFruit match {
@@ -394,6 +417,7 @@
                             case _ => ???
                         }
 						</code></pre>
+						</div>
                     </section>
                     <section>
                         <h2>pattern matching examples<br>nested</h2>
@@ -406,8 +430,10 @@
                             case Apple (_) => ???
                         }
 						</code></pre>
+						<div class="fragment">
                         You can pattern match as deep as you want,<br>
                         as long as every nesting-level applies to these rules!
+						</div>
                     </section>
                     <section>
                         <h2>pattern matching examples<br>nested</h2>
@@ -420,6 +446,7 @@
                             case Apple (List(Seed(), Seed(), Seed())) => ???
                         }
 						</code></pre>
+						<div class="fragment">
                         It will fail with a MatchError at runtime! Better:<br>
                         <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
                         someFruit match {
@@ -432,6 +459,7 @@
                         //It would fail on the following inputs:
                         //Apple(List(_)), Apple(List(_, _)), Apple(List(_, _, _, _)), Apple(Nil)
                         </code></pre>
+						</div>
                     </section>
 				</section>
                 <section>

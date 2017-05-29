@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Optionated Scala</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/black.css">
@@ -123,20 +123,20 @@
 						<h2>Sealed traits for sumtypes</h2>
 						<pre><code data-trim data-noescape class="scala">
 						sealed trait Shape
-						final case class  Circle(radius: Double) extends Shape
-						final case class  Rectangle(width: Double, height: Double) extends Shape
-						final case object Rheinturm extends Shape
-						final case object KoelnerDom extends Shape
+						final case class  Circle   (radius: Double)          extends Shape
+						final case class  Rectangle(width: Int, height: Int) extends Shape
+						final case object Rheinturm                          extends Shape
+						final case object KoelnerDom                         extends Shape
 						</code></pre>
 						Gives us...
 						<ul>
 							<li>Pattern matching safety (exhaustive warnings)</li>
 							<li>Easy to comprehend description of business domain</li>
 						</ul>
-						Important:
+						Important:<br>
 						<ul>
-							<li>Don't forget the essential sealed keyword</li>
-							<li>Avoid putting methods into your trait or its extending types</li>
+							<li>The sealed keyword is essential</li>
+							<li>Avoid functionality</li>
 						</ul>
 					</section>
 					<section>
@@ -157,71 +157,72 @@
 							override def asImage: JPG = ???
 						}
 						</code></pre>
-						This is 'okayish' if application code and not library code...
-						<ul>
-							<li>Less boilerplate than typeclass pattern</li>
-							<li>Better (compiletime) performance than typeclass pattern</li>
-						</ul>
-						For libraries, use typeclass pattern only when accepting input from client!
-					</section>
-					<section>
-						<h2>abstract classes</h2>
-						<ul>
-							<li>You can only extend one abstract class but multiple traits</li>
-							<li>Can have constructor parameters</li>
-							<li>Generally use traits unless you need abstract classes</li>
-						</ul>
-						This is an okayish usage of abstract classes to avoid boilerplate
-						<pre><code data-trim data-noescape class="scala">
-						sealed abstract class ServiceError(msg: String)
-						case object Timeout extends ServiceError("The Request to the Service took too long")
-						case object InvalidResponse extends ServiceError("Could not parse the Service response")
-						</code></pre>
+						'Okayish' when writing application code but not library code...
 					</section>
 					<section>
 						<h2>encode typeclasses</h2>
-						Typeclasses are a powerfull concept.
-						They are a little bit more boilerplate than regular inheritance unless you use specific tooling.
-						Always use typeclasses when writing libraries or in more complex cases.
-
+						<ul>
+							<li>Typeclasses are a powerfull concept.</li>
+							<li>They are a bit more boilerplate than inheritance.</li>
+							<li>Always use typeclasses when writing libraries or when inheritance gets more complex.</li>
+						</ul>
+					</section>
+					<section>
+						<h2>typeclasses for libraries</h2>
 						Bad logging library:
 						<pre><code data-trim data-noescape class="scala">
 						trait StringSerializeable {
-							def serialized: String
+						   def serialized: String
 						}
-						def log[A &gt;: StringSerializeable](obj: A) =
-							writeToLogFile( obj.serialized )
+						def log[A &lt;: StringSerializeable](obj: A) =
+						   writeToLogFile( obj.serialized )
 						</code></pre>
 
 						Good logging library:
 						<pre><code data-trim data-noescape class="scala">
 						trait StringSerializer {
-							def serialize[A](obj: A): String
+						   def serialize[A](obj: A): String
 						}
 						def log[A: StringSerializer](obj: A) =+
-							writeToLogFile( implicitly[StringSerializer].serialize(obj) )
+						   writeToLogFile( implicitly[StringSerializer].serialize(obj) )
 						</code></pre>
 					</section>
 					<section>
-						<h2>Traits without implementation</h2>
+						<h2>zero implementation traits</h2>
 						<ul>
-							<li>They have no implementing classes and can't be intantiated</li>
+							<li>They have nothing extending them</li>
+							<li>They are never intantiated</li>
 							<li>Used for typelevel programming</li>
 							<li>Used for phantom types</li>
 						</ul>
 					</section>
 					<section>
-						<h2>Dependency injection / cake pattern</h2>
+						<h2>DI / cake pattern</h2>
 						Just no. Don't do that. Period.<br>
 						Use Constructor injection instead, or Macwire if you are really lazy.<br>
 						%insert image of bakery of doom here%
+					</section>
+					<section>
+						<h2>abstract classes</h2>
+						<ul>
+							<li>One can extend many traits but only 1 abstract class</li>
+							<li>They can have constructor parameters</li>
+							<li>Generally use traits unless you need abstract classes</li>
+						</ul>
+						<br><br>
+						This is an okayish usage to avoid boilerplate:
+						<pre><code data-trim data-noescape class="scala">
+						sealed abstract class ServiceError(msg: String)
+						case object Timeout extends ServiceError("Request took too long")
+						case object InvalidResponse extends ServiceError("Parse-error")
+						</code></pre>
 					</section>
 				</section>
 				<section>
 					<section>
 						<h1>Implicits</h1>
 						What happens when we try to compile and execute this code:
-						<iframe height="300" frameborder="0" style="width: 100%; overflow: hidden;" src="https://embed.scalafiddle.io/embed?sfid=MGtwAKo/0&theme=dark&layout=v50"></iframe>
+						<iframe height="200" frameborder="0" style="width: 100%; overflow: hidden;" src="https://embed.scalafiddle.io/embed?sfid=IunxWmZ/2&theme=dark&layout=v50"></iframe>
 						<!--
 						<pre><code data-trim data-noescape class="scala">
 						implicit val petNames = List("Cat", "Dog", "Dolphin")
@@ -247,16 +248,20 @@
 						<h2>Implicit methods examples</h2>
 						Bad:
 						<pre><code data-trim data-noescape class="scala">
-						implicit def(s: String): List[Char] = ???
+						implicit def charList(s: String): List[Char] = ???
 						</code></pre>
 						Good:
 						<pre><code data-trim data-noescape class="scala">
-						class StringOps(s: String) { … }
+						class StringOps(s: String) {
+						   def toCharList: List[Char] = ???
+						}
 						implicit def (s: String): StringOps = new StringOps(s)
 						</code></pre>
 						...or even better:
 						<pre><code data-trim data-noescape class="scala">
-						implicit class StringOps(s: String) { … }
+						implicit class StringOps(s: String) {
+							def toCharList: List[Char] = ???
+						}
 						</code></pre>
 					</section>
 					<section>
@@ -266,26 +271,34 @@
 							<li>That's it. Nothing more. Period. (Or is there more?)</li>
 							<li>Don't use it to pass "configurations" or "contexts" down the call chain!</li>
 						</ul>
-						It is common practice to pass an implicit ExecutionContext, even in the standard library.<br>
-						This is a code smell and can most of the times be solved better.
+						<br>
+						<br>
+						It's common practice to pass an implicit ExecutionContext.<br>
+						This is a code smell and can mostly be solved better.<br>
 					</section>
 					<section>
-						<h2>Implicit parameters examples</h2>
+						<h2>Implicit parameters</h2>
 						Bad:
 						<pre><code data-trim data-noescape class="scala">
 						def greetUser(name: UserName)(implicit lang: Language) = ???
 						</code></pre>
 						Worse:
 						<pre><code data-trim data-noescape class="scala">
-						def allUsers(repository: UserRepository)(implicit ec: ExecutionContext) = ???
+						def allUsers(repository: UserRepository)
+						   (implicit ec: ExecutionContext) = ???
 						</code></pre>
-						Doomed!:
+						Doomed!
 						<pre><code data-trim data-noescape class="scala">
-						def getAllUsers(repository: UserRepository)(implicit ec: ExecutionContext, timeoutLimit: Long) = ???
+						def getAllUsers(repository: UserRepository)
+						   (implicit ec: ExecutionContext, timeoutLimit: Long) = ???
 						</code></pre>
+					</section>
+					<section>
+						<h2>Implicit parameters<br> the good parts</h2>
 						Good:
 						<pre><code data-trim data-noescape class="scala">
-						def serialize[A](obj: A)(implicit si: SerializeInstructions[A]) = ???
+						def serialize[A](obj: A)
+						   (implicit si: SerializeInstructions[A]) = ???
 						</code></pre>
 						Better:
 						<pre><code data-trim data-noescape class="scala">
@@ -298,117 +311,121 @@
 						<h1>Pattern matching</h1>
 						<ul>
 							<li>Powerful but unsafe in many cases</li>
-							<li>Sometimes overused - if/else is not generally bad</li>
-							<li>Don't write unsafe pattern matches, ever. You don't have to</li>
+							<li>Sometimes overused - if/else is not generally bad!</li>
+							<li>Don't write unsafe pattern matches, ever.<br>You don't have to</li>
 						</ul>
 					</section>
 					<section>
 						<h2>Pattern matching - overused</h2>
 						<pre><code data-trim data-noescape class="scala">
 						birthyear match {
-							case 1989 => println("this is the best year")
-							case 2017 => println("You are to young to read this anways")
+							case 1989 => println("This is the best year")
+							case 2020 => println("Are you from the Future[_]?!")
 						}
 						</code></pre>
 						Do we really need pattern matching here? Let's see...
 						<pre><code data-trim data-noescape class="scala">
-						if(birthyear == 1989) println("this is the best year")
-						else if(birthyear == 2017) println("You are to young to read this anways")
+						if(birthyear == 1989)
+							println("This is the best year")
+						else if(birthyear == 2020)
+							println("Are you from the Future[_]?!")
 						</code></pre>
-						Here one can immediately see that this might be unsafe because we have not covered all cases.
+						One can immediately see that this might be unsafe because we have not covered all cases.
 					</section>
                     <section>
                         <h2>Safe pattern matching</h2>
                         Using the <i>-Xfatal-warnings</i> compiler-flag,<br>
-                        it is safe to pattern match on
+                        it is always safe to pattern match on...
                         <ul>
-                            <li>Primitives (Int, Boolean, String, ...)</li>
+                            <li>Primitives (Int, Boolean, String, ...) in case classes</li>
                             <li>Sealed traits of (final) case classes</li>
                         </ul>
-                        Everything else makes pattern matching potentially unsafe<br>
+						<p>
+                        Everything else can make pattern matching unsafe<br>
                         Including guard-conditions<br>
-                        But: pattern matching with default cases are always safe
+                        But: pattern matching while using a default case is always safe, obviously
+						</p>
                     </section>
                     <section>
-                        <h2>pattern matching examples - safe cases</h2>
-                        <pre><code data-trim data-noescape class="scala">
-                        "hello" match { case "really hello?" => ??? }
+                        <h2>pattern matching examples<br>safe cases</h2>
+                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
+						true match { case true => ??? }
+						//Error: It would fail on the following input: true
 						</code></pre>
-                        <pre><code data-trim data-noescape class="scala">
-                        sealed trait Fruit
-                        case class Grape(seedWeight: Option[Double]) extends Fruit
-                        case class Banana(length: Float) extends Fruit
-                        case class Apple(seeds: List[Seed]) extends Fruit
+                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
+						sealed trait Fruit
+						case class Grape (seedWeight: Option[Double]) extends Fruit
+						case class Banana(length: Float)              extends Fruit
+						case class Apple (seeds: List[Seed])          extends Fruit
 
-                        someFruit match {
-                            case Grape(_) => ???
-                            case Banana(length) => ???
-                        }
+						someFruit match {
+						    case Grape (_) => ???
+						    case Banana(_) => ???
+						}
+						//Error: It would fail on the following input: Apple(_)
 						</code></pre>
 
-                        <pre><code data-trim data-noescape class="scala">
+                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
                         someFruit match {
-                            case Grape(_) => ???
+                            case Grape (_) => ???
                             case Banana(20.05) => ???
-                            case Apple(_) => ???
+                            case Apple (_) => ???
                         }
-                        //Compiler error:
-                        //It would fail on the following input:
+                        //Error: It would fail on the following input:
                         //Banana((x: Float forSome x not in 20.05))
 						</code></pre>
                     </section>
                     <section>
-                        <h2>pattern matching examples - guards</h2>
+                        <h2>pattern matching examples<br>guards</h2>
                         Unsafe when using guards:
                         <pre><code data-trim data-noescape class="scala">
                         someFruit match {
-                            case Grape(_) => ???
+                            case Grape (_) => ???
                             case Banana(length) if length > 20 => ???
-                            case Apple(_) => ???
+                            case Apple (_) => ???
                         }
 						</code></pre>
                         Make it safe with default case:
                         <pre><code data-trim data-noescape class="scala">
                         someFruit match {
-                            case Grape(_) => ???
+                            case Grape (_) => ???
                             case Banana(length) if length > 20 => ???
-                            case Apple(_) => ???
+                            case Apple (_) => ???
                             case _ => ???
                         }
 						</code></pre>
                     </section>
                     <section>
-                        <h2>pattern matching examples - nested</h2>
+                        <h2>pattern matching examples<br>nested</h2>
                         Safe nested pattern matching:
                         <pre><code data-trim data-noescape class="scala">
-                        //Remember: case class Grape(seedWeight: Option[Double]) extends Fruit
+                        //case class Grape(seedWeight: Option[Double]) extends Fruit
                         someFruit match {
-                            case Grape(Some(weight)) => ???
+                            case Grape (Some(weight)) => ???
                             case Banana(_) => ???
-                            case Apple(_) => ???
+                            case Apple (_) => ???
                         }
 						</code></pre>
-                        You can pattern match as deep as you want.<br>
-                        As long as every nesting-level applies to the presented rules!
+                        You can pattern match as deep as you want,<br>
+                        as long as every nesting-level applies to these rules!
                     </section>
                     <section>
-                        <h2>pattern matching examples - nested</h2>
+                        <h2>pattern matching examples<br>nested</h2>
                         Is this safe?
-                        <pre><code data-trim data-noescape class="scala">
+                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
                         //Remember: case class Apple(seeds: List[Seed]) extends Fruit
                         someFruit match {
-                            case Grape(_) => ???
+                            case Grape (_) => ???
                             case Banana(_) => ???
-                            case Apple(List(Seed(), Seed(), Seed())) => ???
+                            case Apple (List(Seed(), Seed(), Seed())) => ???
                         }
 						</code></pre>
-                        It is not safe and can fail with a MatchError at runtime!<br>
-                        Let's make the compiler warn us:
-                        <pre><code data-trim data-noescape class="scala">
+                        It will fail with a MatchError at runtime! Better:<br>
+                        <pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
                         someFruit match {
-                            case Grape(_) => ???
+                            case Grape (_) => ???
                             case Banana(_) => ???
-                            case Apple(Seed() :: Seed() :: Seed() :: Nil) => ???
+                            case Apple (Seed() :: Seed() :: Seed() :: Nil) => ???
                         }
                         //Compiler:
                         //match may not be exhaustive.
@@ -451,6 +468,7 @@
 			// - https://github.com/hakimel/reveal.js#configuration
 			// - https://github.com/hakimel/reveal.js#dependencies
 			Reveal.initialize({
+                history: true,
 				dependencies: [
 					{ src: 'plugin/markdown/marked.js' },
 					{ src: 'plugin/markdown/markdown.js' },

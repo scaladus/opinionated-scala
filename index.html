@@ -418,22 +418,40 @@
                     </section>
 				</section>
                 <section>
-                    <h1>Warts</h1>
+                    <h1>Warts & style</h1>
                     <section>
-                        <h2>Don't use partial functions!</h2>
+                        <h2 class="fragment">Pitfall partial functions</h2>
                         <ul>
-                            <li>Never use `Option.get` use `getOrElse`, `map` or literally anything else.</li>
-                            <li>Do NOT use `List.apply`, use `lift` instead. </li>
-                            <li>Same goes for `head`, there use `headOption`</li>
-                            <li>If you do want to use a partial function, use functions that expect one, e.g. `List.collect`</li>
+                            <li class="fragment">Never use `Option.get`...</li>
+														<li class="fragment">...use `getOrElse`, `map` or literally anything else.</li>
+                            <li class="fragment">Do NOT use `List.apply`, e.g. `val x = List(5)`</li>
+														<li class="fragment">... use `lift` instead. </li>
+                            <li class="fragment">Same goes for `head`, there use `headOption`</li>
                         </ul>
                     </section>
                     <section>
-                        <h2>General</h2>
+                        <h2>Pitfall partial functions</h2>
                         <ul>
-                            <li>Avoid using `Seq`, as it default to the mutable version</li>
-                            <li>Don't await Futures unless you want to block the thread on purpose!</li>
-                            <li>You might want to try Scapegoat or WartRemover to help</li>
+                            <li class="fragment"><pre style="width=100%"><code class="scala">list map { case Person(name) => save(name) }</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">list collect { case Person(name) => save(name) }</code></pre></li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Functions on functors</h2>
+												<ul>
+                            <li class="fragment"><pre style="width=100%"><code class="scala">def transformOption(input:Option[Int]):Option[Int]</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">def transform(input:Int):Int ; myOption.map(transform)</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">def transformEachSingleElement(input:List[Int]):List[Int]</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">def transform(input:Int):Int ; myList.map(transform)</code></pre></li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Further suggestions</h2>
+                        <ul>
+                            <li class="fragment">Avoid using `Seq`, as it default to the mutable version</li>
+                            <li class="fragment">Don't await Futures unless you want to block the thread on purpose!</li>
+														<li class="fragment">Single file only for ADTs (= case class model)</li>
+                            <li class="fragment">You might want to try Scapegoat or WartRemover to help</li>
                         </ul>
                     </section>
                 </section>

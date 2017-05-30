@@ -38,7 +38,7 @@
 					</h2>
 					<br/>
 					<hr/>
-					<p style="font-size: 0.7em;">Luka Jacobowit</p>
+					<p style="font-size: 0.7em;">Luka Jacobowitz</p>
 					<p style="font-size: 0.7em;">Jan Schulte</p>
 					<p style="font-size: 0.7em;">Valentin Willscher</p>
 				</section>
@@ -60,10 +60,48 @@
 					</ul>
 				</section>
 				<section>
-					<h1>General philosophy</h1>
 					<section>
-						Idiomatic but not dogmatic
+						<h1>General philosophy</h1>
+						Two main things we want to achieve.
+						<ul class="fragment">
+							<li>Referential Transparency</li>
+							<li class="fragment">Type Safety</li>
+						</ul>
 					</section>
+					<section>
+						<h2>Referential Transparency</h2>
+						Def: "Referential transparency means exchanging any term for another term that refers to the same entity does not change the program."
+						<p class="fragment">Lets us and the compiler reason with our code at a much greater level</p>
+					</section>
+					<section>
+						<pre><code data-trim data-noescape class="scala">
+						def add(a: Int, b: Int): Int {
+							launchTheNukes()
+							a + b
+						}
+						add(1, 3) * add(1, 3) //let’s inline this!
+						val x = add(1,3)
+						x * x //whoops! We changed the program!
+						</code></pre>
+					</section>
+					<section>
+						<h2>Type Safety</h2>
+						Complete Type Safety: A program that compiles must always be a valid program (i.e. no runtime exceptions).
+						<p class="fragment">Scala's Type System is extremely expressive! Let the compiler work for you!</p>
+					</section>
+					<section>
+						<pre><code data-trim data-noescape class="scala">
+						scala> val i2: Int Refined Positive = -5
+						<console>:22: error: Predicate failed: (-5 > 0).
+							val i2: Int Refined Positive = -5
+															^
+						scala> val u1: String Refined Url = "htp://example.com"
+						<console>:38: error: Url predicate failed: unknown protocol: htp
+							val u1: String Refined Url = "htp://example.com"
+														 ^									
+						</code></pre>
+					</section>
+					<section>Idiomatic but not dogmatic!</section>
 				</section>
 				<section>
 					<section>

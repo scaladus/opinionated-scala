@@ -55,8 +55,8 @@
 								<li>About Exceptions</li>
 							</ul>
 						</li>
-						<li>Warts</li>
-						<li>Overall architecture</li>
+						<li>Warts & style</li>
+						<li>General advice</li>
 					</ul>
 				</section>
 				<section>
@@ -457,9 +457,16 @@
                         <h2>Functions on functors</h2>
 												<ul>
                             <li class="fragment"><pre style="width=100%"><code class="scala">def transformOption(input:Option[Int]):Option[Int]</code></pre></li>
-														<li class="fragment"><pre style="width=100%"><code class="scala">def transform(input:Int):Int ; myOption.map(transform)</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">def transform(input:Int):Int</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">myOption.map(transform)</code></pre></li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Functions on functors</h2>
+												<ul>
 														<li class="fragment"><pre style="width=100%"><code class="scala">def transformEachSingleElement(input:List[Int]):List[Int]</code></pre></li>
-														<li class="fragment"><pre style="width=100%"><code class="scala">def transform(input:Int):Int ; myList.map(transform)</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">def transform(input:Int):Int</code></pre></li>
+														<li class="fragment"><pre style="width=100%"><code class="scala">myList.map(transform)</code></pre></li>
                         </ul>
                     </section>
                     <section>
@@ -468,12 +475,49 @@
                             <li class="fragment">Avoid using `Seq`, as it default to the mutable version</li>
                             <li class="fragment">Don't await Futures unless you want to block the thread on purpose!</li>
 														<li class="fragment">Single file only for ADTs (= case class model)</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Further suggestions</h2>
+                        <ul>
+														<li class="fragment">Public methods and vals should have a type annotation</li>
                             <li class="fragment">You might want to try Scapegoat or WartRemover to help</li>
                         </ul>
                     </section>
                 </section>
 				<section>
-					<h1>Overall architecture</h1>
+					<h1>General advice</h1>
+					<section>
+							<h2>Libraries & frameworks</h2>
+							<ul>
+									<li class="fragment">Prefer Scala libraries over Java libraries</li>
+									<li class="fragment">Use strongly typed, functional libraries</li>
+									<li class="fragment"><a href="http://www.typelevel.org">Typelevel</a> is a good starting point</li>
+									<li class="fragment">Avoid writing your own framework!</li>
+							</ul>
+					</section>
+					<section>
+							<h2>Keep it simple, stupid!</h2>
+							<ul>
+									<li class="fragment">Scala is a powerful weapon!</li>
+									<li class="fragment">Do you really need Akka? Spark?</li>
+									<li class="fragment">Avoid macros!</li>
+									<li class="fragment">Might shapeless be the option?</li>
+							</ul>
+					</section>
+					<section>
+							<h2>Separation of concerns</h2>
+							<ul>
+									<li class="fragment">DRY is overrated</li>
+									<li class="fragment">Do one thing and do it well!</li>
+									<li class="fragment">From functions to architecture</li>
+							</ul>
+					</section>
+					<section>
+							<ul>
+									<img class="fragment" src="customresources/architecture.png"></img>
+							</ul>
+					</section>
 				</section>
 			</div>
 		</div>

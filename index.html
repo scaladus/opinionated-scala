@@ -499,6 +499,52 @@
                         </code></pre>
 						</div>
                     </section>
+					
+				</section>
+				<section>
+					<section>
+					<h2>Exceptions</h2>
+					Exceptions indicate either...
+					<ul class="fragment">
+						<li>Technical errors (e.g. NullPointerException)</li>
+						<li class="fragment">Fatal errors (e.g. StackOverFlowException)</li>
+						<li class="fragment">Domain errors (e.g. NumberFormatException)</li>
+					</ul>
+					<p class="fragment">We usually want to encode all non-fatal errors in the type system (e.g. with the Either type). That way we can never forget to handle them.</p>
+					<p class="fragment">If you need to work with a library that throws Exceptions use Try (upper- not lowercase)</p>
+					</section>
+					<section>
+						<h3>Bad</h3>
+						<pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
+						def asyncGetUser(userId): Future[User] = ???
+						val userResult = Await(asyncGetUser(someId), 20.seconds)
+						userResult match {
+							case Success(user) => println("wuh, user found!")
+							case Failure(ResponseTimeoutException()) => println("Timed out!")
+							case Failure(UserNotFound(userId)) => println("Could not find user")
+							case Failure(UserParseError(jsonError)) => println("Could find user but not parse it")
+							case Failure(throwable) => println("Uh oh, something went wrong. Maybe the Thread was interrupted OR maybe we did forget to handle a domain error? Who knows...")
+						}
+						</code></pre>
+					</section>
+					<section>
+						<h3>Better</h3>
+						<pre style="font-size: 0.4em;"><code data-trim data-noescape class="scala">
+						def asyncGetUser(userId): Future[Either[DomainError, User]] = ???
+						val userResult = Await(asyncGetUser(someId), 20.seconds)
+						userResult match {
+							//Technically everything went well. We can now check for domain errors.
+							case Success(domainResult) => domainResult match {
+								case Right(user) => println("wuh, user found!")
+								case Left(ResponseTimeoutException) => println("Timed out!")
+								case Left(UserNotFound(userId)) => println("Could not find user")
+								case Left(UserParseError(jsonError)) => println("Could find user but not parse it")
+							}
+							//Only technical error
+							case Failure(throwable) => println("Uh oh, something went wrong. Maybe the Thread was interrupted but it can't be a domain error that we forgot to handle!")
+						}
+						</code></pre>
+					</section>
 				</section>
                 <section>
                     <h1>Warts & style</h1>
